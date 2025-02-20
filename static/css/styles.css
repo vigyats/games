@@ -1,0 +1,98 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #003366;
+    font-family: 'Press Start 2P', cursive;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-container {
+    position: relative;
+}
+
+canvas {
+    background: #003366;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+#score {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #FFFFFF;
+    font-size: 20px;
+}
+
+#lives {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #FFFFFF;
+    font-size: 20px;
+}
+
+#gameOver {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 105, 148, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    color: #FFFFFF;
+}
+
+#restartButton {
+    background: #FF9800;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+#restartButton:hover {
+    background: #f57c00;
+}
+
+.menu-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 51, 102, 0.95);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    color: #FFFFFF;
+    border: 2px solid #81D4FA;
+}
+
+.menu-button {
+    background: #00ACC1;
+    border: none;
+    padding: 15px 30px;
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 10px 0;
+    display: block;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.menu-button:hover {
+    background: #0097A7;
+}
+
+.hidden {
+    display: none;
+}

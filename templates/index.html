@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Underwater Runner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="score">Score: 0</div>
+        <div id="lives">Lives: 2</div>
+
+        <div id="difficultySelect" class="menu-screen">
+            <h2>Select Difficulty</h2>
+            <button id="easyButton" class="menu-button">Easy (3 Lives)</button>
+            <button id="normalButton" class="menu-button">Normal (2 Lives)</button>
+            <button id="hardButton" class="menu-button">Hard (1 Life)</button>
+        </div>
+
+        <div id="gameOver" class="hidden menu-screen">
+            <h2>Game Over</h2>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <button id="restartButton" class="menu-button">Play Again</button>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/particle.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/background.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/obstacle.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/shark.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+</body>
+</html>
