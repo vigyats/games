@@ -7,43 +7,53 @@ class Shark {
         this.y = canvas.height / 2;
         this.velocity = 0;
         this.gravity = 0.5;
-        this.baseJumpForce = -10;
-        this.isJumping = false;
-        this.jumpCount = 0;
-        this.lastJumpTime = 0;
-        this.jumpWindow = 500;
+        this.baseJumpForce = -8; // Reduced force for smoother movement
+        this.maxUpwardVelocity = -12;
+        this.spacebarHeld = false;
+        this.floatForce = -0.4; // Gentle upward force when floating
+        this.isAlive = true;
     }
 
     jump() {
-        const currentTime = Date.now();
+        if (!this.isAlive) return;
 
-        if (currentTime - this.lastJumpTime < this.jumpWindow && this.isJumping) {
-            this.jumpCount++;
-            const multiplier = Math.min(this.jumpCount, 3);
-            this.velocity = this.baseJumpForce * multiplier;
-        } else {
-            this.jumpCount = 1;
+        if (!this.spacebarHeld) {
+            // Initial jump
             this.velocity = this.baseJumpForce;
+            this.spacebarHeld = true;
         }
+    }
 
-        this.isJumping = true;
-        this.lastJumpTime = currentTime;
+    stopJump() {
+        this.spacebarHeld = false;
     }
 
     update() {
-        this.velocity += this.gravity;
+        if (!this.isAlive) return;
+
+        if (this.spacebarHeld) {
+            // Apply continuous upward force while spacebar is held
+            this.velocity += this.floatForce;
+            // Limit maximum upward velocity
+            this.velocity = Math.max(this.velocity, this.maxUpwardVelocity);
+        } else {
+            // Apply gravity when not holding spacebar
+            this.velocity += this.gravity;
+        }
+
+        // Update position
         this.y += this.velocity;
 
+        // Bottom boundary
         if (this.y + this.height > this.canvas.height) {
             this.y = this.canvas.height - this.height;
             this.velocity = 0;
-            this.isJumping = false;
-            this.jumpCount = 0;
         }
 
+        // Top boundary - allow slight compression against top
         if (this.y < 0) {
             this.y = 0;
-            this.velocity = 0;
+            this.velocity = Math.max(0, this.velocity); // Stop upward movement but allow falling
         }
     }
 
@@ -88,7 +98,7 @@ class Shark {
         ctx.closePath();
         ctx.fill();
 
-        // Gills (three lines)
+        // Gills
         ctx.strokeStyle = '#008B9E';
         ctx.lineWidth = 2;
         for (let i = 0; i < 3; i++) {

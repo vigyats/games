@@ -1,32 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Underwater Runner</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="game-container">
-        <canvas id="gameCanvas"></canvas>
-        <div id="score">Score: 0</div>
-        <div id="lives">Lives: 2</div>
+        <div class="game-header">
+            <div class="stats-container">
+                <div id="score" class="game-stat">Score: 0</div>
+                <div class="hearts-container" id="hearts-display"></div>
+            </div>
+        </div>
+
+        <div class="canvas-wrapper">
+            <canvas id="gameCanvas"></canvas>
+        </div>
 
         <div id="difficultySelect" class="menu-screen">
             <h2>Select Difficulty</h2>
-            <button id="easyButton" class="menu-button">Easy (3 Lives)</button>
-            <button id="normalButton" class="menu-button">Normal (2 Lives)</button>
-            <button id="hardButton" class="menu-button">Hard (1 Life)</button>
+            <div class="button-group">
+                <button id="easyButton" class="menu-button btn btn-lg btn-outline-primary">Easy (3 Lives)</button>
+                <button id="normalButton" class="menu-button btn btn-lg btn-outline-info">Normal (2 Lives)</button>
+                <button id="hardButton" class="menu-button btn btn-lg btn-outline-danger">Hard (1 Life)</button>
+            </div>
         </div>
 
         <div id="gameOver" class="hidden menu-screen">
             <h2>Game Over</h2>
             <p>Final Score: <span id="finalScore">0</span></p>
-            <button id="restartButton" class="menu-button">Play Again</button>
+            <button id="restartButton" class="menu-button btn btn-lg btn-primary">Play Again</button>
+        </div>
+
+        <div id="touchControls" class="touch-controls">
+            <div class="touch-hint">Tap and hold to swim up!</div>
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/particle.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jellyfish.js') }}"></script>
     <script src="{{ url_for('static', filename='js/background.js') }}"></script>
     <script src="{{ url_for('static', filename='js/obstacle.js') }}"></script>
     <script src="{{ url_for('static', filename='js/shark.js') }}"></script>

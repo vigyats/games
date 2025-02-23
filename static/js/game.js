@@ -61,6 +61,15 @@ class Game {
             showing: true
         };
 
+        this.jellyfish = [];
+        this.numJellyfish = 2; // Reduced to 2 jellyfish
+
+        // Initialize jellyfish
+        for (let i = 0; i < this.numJellyfish; i++) {
+            this.jellyfish.push(new Jellyfish(this.canvas));
+        }
+
+
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
 
@@ -70,6 +79,12 @@ class Game {
 
         this.setupControls();
         this.setupGameOver();
+        this.updateLivesDisplay(); // Add this line at the end of the constructor
+    }
+
+    updateLivesDisplay() {
+        const heartsDisplay = document.getElementById('hearts-display');
+        heartsDisplay.innerHTML = Array(this.lives).fill('<i class="fas fa-heart heart-icon"></i>').join('');
     }
 
     setupDifficultySelection() {
@@ -104,23 +119,58 @@ class Game {
     }
 
     setupControls() {
+        // Keyboard controls
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && !this.gameOver) {
+                e.preventDefault(); // Prevent page scrolling
                 this.shark.jump();
                 this.createJumpEffect();
                 this.jumpSound.play().catch(e => console.log('Audio play failed:', e));
             }
         });
 
-        // Add touch controls for mobile
-        this.canvas.addEventListener('touchstart', (e) => {
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                this.shark.stopJump();
+            }
+        });
+
+        // Enhanced touch controls
+        let touchActive = false;
+
+        const handleTouch = (e) => {
             e.preventDefault();
-            if (!this.gameOver) {
+            if (!this.gameOver && !touchActive) {
+                touchActive = true;
                 this.shark.jump();
                 this.createJumpEffect();
                 this.jumpSound.play().catch(e => console.log('Audio play failed:', e));
             }
-        });
+        };
+
+        const handleTouchEnd = () => {
+            touchActive = false;
+            this.shark.stopJump();
+        };
+
+        // Add touch events with improved handling
+        this.canvas.addEventListener('touchstart', handleTouch, { passive: false });
+        this.canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+        this.canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+
+        // Show/hide touch hint on mobile devices
+        const touchControls = document.getElementById('touchControls');
+        if ('ontouchstart' in window) {
+            touchControls.style.display = 'block';
+            // Hide hint after first touch
+            this.canvas.addEventListener('touchstart', () => {
+                touchControls.style.opacity = '0';
+                setTimeout(() => touchControls.style.display = 'none', 1000);
+            }, { once: true });
+        } else {
+            touchControls.style.display = 'none';
+        }
     }
 
     createJumpEffect() {
@@ -140,28 +190,23 @@ class Game {
 
         restartButton.addEventListener('click', () => {
             gameOverScreen.classList.add('hidden');
-            // Show difficulty select screen again
-            document.getElementById('difficultySelect').classList.remove('hidden');
-            // Reset all game states
-            this.score = 0;
-            this.gameOver = false;
-            this.obstacles = [];
-            this.particles = [];
-            this.lastObstacleSpawn = 0;
-            this.deathAnimation.isPlaying = false;
-            this.deathAnimation.frame = 0;
-            this.chasingShark.x = -200;
-            this.girlfriendShark.isVisible = false;
-            this.otherShark.isVisible = false;
-            this.introText.showing = true;
-            this.introText.alpha = 1;
-            this.lives = this.difficultySettings[this.difficulty].lives;
-            this.gameSpeed = this.difficultySettings[this.difficulty].speed;
-            this.obstacleSpawnInterval = this.difficultySettings[this.difficulty].spawnInterval;
-            this.shark = new Shark(this.canvas);
-            this.isInvulnerable = false;
-            document.getElementById('score').textContent = `Score: ${this.score}`;
-            document.getElementById('lives').textContent = `Lives: ${this.lives}`;
+
+            // Show water conservation message
+            const messageScreen = document.createElement('div');
+            messageScreen.className = 'conservation-message';
+            messageScreen.innerHTML = `
+                <div class="message-content">
+                    <h2>🌊 Save Our Oceans 🐋</h2>
+                    <p>"Protect Marine Life, Save Our Waters"</p>
+                    <p class="sub-message">Every drop counts in preserving our ocean's precious ecosystems</p>
+                </div>
+            `;
+            document.body.appendChild(messageScreen);
+
+            // Reload after showing message
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
         });
     }
 
@@ -183,7 +228,7 @@ class Game {
         this.shark = new Shark(this.canvas);
         this.isInvulnerable = false;
         document.getElementById('score').textContent = `Score: ${this.score}`;
-        document.getElementById('lives').textContent = `Lives: ${this.lives}`;
+        this.updateLivesDisplay();
     }
 
     spawnObstacle() {
@@ -213,7 +258,7 @@ class Game {
     handleCollision() {
         if (!this.isInvulnerable) {
             this.lives--;
-            document.getElementById('lives').textContent = `Lives: ${this.lives}`;
+            this.updateLivesDisplay();
 
             if (this.lives <= 0) {
                 this.endGame();
@@ -293,6 +338,7 @@ class Game {
             particle.update();
             return particle.isAlive();
         });
+        this.jellyfish.forEach(jelly => jelly.update());
     }
 
     updateDeathAnimation() {
@@ -556,23 +602,26 @@ class Game {
         this.background.draw(this.ctx);
         this.drawChasingShark(this.ctx);
         this.drawGirlfriendScene(this.ctx);
+        this.jellyfish.forEach(jelly => jelly.draw(this.ctx)); //draw jellyfish
         this.particles.forEach(particle => particle.draw(this.ctx));
         this.obstacles.forEach(obstacle => obstacle.draw(this.ctx));
 
-        // Draw intro text
+        // Draw intro text with better mobile scaling
         if (this.introText.showing) {
             this.ctx.save();
             this.ctx.globalAlpha = this.introText.alpha;
             this.ctx.fillStyle = '#FFFFFF';
             this.ctx.textAlign = 'center';
 
-            // Main title
-            this.ctx.font = '48px "Press Start 2P"';
+            // Main title - responsive font size
+            const titleSize = Math.min(48, this.canvas.width / 12);
+            this.ctx.font = `${titleSize}px "Press Start 2P"`;
             this.ctx.fillText(this.introText.main, this.canvas.width / 2, this.canvas.height / 2);
 
-            // Subtitle
-            this.ctx.font = '16px "Press Start 2P"';
-            this.ctx.fillText(this.introText.sub, this.canvas.width / 2, this.canvas.height / 2 + 40);
+            // Subtitle - responsive font size
+            const subtitleSize = Math.min(16, this.canvas.width / 25);
+            this.ctx.font = `${subtitleSize}px "Press Start 2P"`;
+            this.ctx.fillText(this.introText.sub, this.canvas.width / 2, this.canvas.height / 2 + titleSize);
             this.ctx.restore();
         }
 
@@ -607,10 +656,15 @@ class Game {
             ));
         }
 
-        // Show game over screen after animation
+        // Show game over screen and reload after animation
         setTimeout(() => {
             document.getElementById('gameOver').classList.remove('hidden');
             document.getElementById('finalScore').textContent = this.score;
+
+            // Reload the entire page after 2 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         }, 2000);
     }
 
